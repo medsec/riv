@@ -1,5 +1,5 @@
 /**
-// RIV[CLHASH, Counter[AES-128]] reference code.
+// RIV[CLHASH-128, XOR-CTR[AES-128]] reference code.
 // Note: This uses CLHASH with two iterations of the 
 //       Toeplitz matrix extension.
 // Note: This version might be susceptible to side-channel attacks.

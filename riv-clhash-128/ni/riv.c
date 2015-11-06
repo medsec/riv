@@ -1,5 +1,7 @@
 /**
-// RIV[CLHASH-128, Counter[AES-128]] x86-64-only code.
+// RIV[CLHASH-128, XOR-CTR[AES-128]] x86-64-only code.
+// Note: This uses CLHASH with two iterations of the 
+//       Toeplitz matrix extension.
 // Note: This version might be susceptible to side-channel attacks.
 // 
 // Author: Eik List. October 2015.

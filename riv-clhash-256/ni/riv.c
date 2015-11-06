@@ -1,7 +1,7 @@
 /**
-// RIV[HS1, Counter[AES-128]] x86-64-only code.
-// Note: This uses HS1 Draft v2 with four iterations of the 
-//       Toeplitz matrix extension, like in HS1-SIV (not -LO, not -HI).
+// RIV[CLHASH-256, XOR-CTR[AES-128]] reference code.
+// Note: This uses CLHASH with four iterations of the 
+//       Toeplitz matrix extension.
 // Note: This version might be susceptible to side-channel attacks.
 // 
 // Author: Eik List. October 2015.
@@ -300,7 +300,42 @@ static inline void xor_eight(__m128i* states,
 
 // ---------------------------------------------------------------------
 
-#define deoxys_enc_round_eight(states, tweak, tweak_ctrs, k) \
+// #define deoxys_enc_round_eight(states, tweak, tweak_ctrs, k) \
+//     tmp = vxor(tweak, k); \
+//     states[0] = vaesenc(states[0], vxor(*(tweak_ctrs+0), tmp)); \
+//     states[1] = vaesenc(states[1], vxor(*(tweak_ctrs+1), tmp)); \
+//     states[2] = vaesenc(states[2], vxor(*(tweak_ctrs+2), tmp)); \
+//     states[3] = vaesenc(states[3], vxor(*(tweak_ctrs+3), tmp)); \
+//     states[4] = vaesenc(states[4], vxor(*(tweak_ctrs+4), tmp)); \
+//     states[5] = vaesenc(states[5], vxor(*(tweak_ctrs+5), tmp)); \
+//     states[6] = vaesenc(states[6], vxor(*(tweak_ctrs+6), tmp)); \
+//     states[7] = vaesenc(states[7], vxor(*(tweak_ctrs+7), tmp)); \
+//     tweak = permute_tweak(tweak)
+
+// ---------------------------------------------------------------------
+
+// #define deoxys_enc_eight(states, tweak, tweak_ctrs, k, n) \
+//     tmp = vxor(n, tweak); \
+//     xor_eight(states, tmp, tweak_ctrs); \
+//     tweak = permute_tweak(tweak); \
+//     deoxys_enc_round_eight(states, tweak, tweak_ctrs+(1*8), k[1]); \
+//     deoxys_enc_round_eight(states, tweak, tweak_ctrs+(2*8), k[2]); \
+//     deoxys_enc_round_eight(states, tweak, tweak_ctrs+(3*8), k[3]); \
+//     deoxys_enc_round_eight(states, tweak, tweak_ctrs+(4*8), k[4]); \
+//     deoxys_enc_round_eight(states, tweak, tweak_ctrs+(5*8), k[5]); \
+//     deoxys_enc_round_eight(states, tweak, tweak_ctrs+(6*8), k[6]); \
+//     deoxys_enc_round_eight(states, tweak, tweak_ctrs+(7*8), k[7]); \
+//     deoxys_enc_round_eight(states, tweak, tweak_ctrs+(8*8), k[8]); \
+//     deoxys_enc_round_eight(states, tweak, tweak_ctrs+(9*8), k[9]); \
+//     deoxys_enc_round_eight(states, tweak, tweak_ctrs+(10*8), k[10]); \
+//     deoxys_enc_round_eight(states, tweak, tweak_ctrs+(11*8), k[11]); \
+//     deoxys_enc_round_eight(states, tweak, tweak_ctrs+(12*8), k[12]); \
+//     deoxys_enc_round_eight(states, tweak, tweak_ctrs+(13*8), k[13]); \
+//     deoxys_enc_round_eight(states, tweak, tweak_ctrs+(14*8), k[14])
+
+// ---------------------------------------------------------------------
+
+#define deoxys_enc_round_eight(states, tweak, tweak_ctrs, k) do {\
     tmp = vxor(tweak, k); \
     states[0] = vaesenc(states[0], vxor(*(tweak_ctrs+0), tmp)); \
     states[1] = vaesenc(states[1], vxor(*(tweak_ctrs+1), tmp)); \
@@ -310,28 +345,28 @@ static inline void xor_eight(__m128i* states,
     states[5] = vaesenc(states[5], vxor(*(tweak_ctrs+5), tmp)); \
     states[6] = vaesenc(states[6], vxor(*(tweak_ctrs+6), tmp)); \
     states[7] = vaesenc(states[7], vxor(*(tweak_ctrs+7), tmp)); \
-    tweak = permute_tweak(tweak)
+} while (0)
 
 // ---------------------------------------------------------------------
 
-#define deoxys_enc_eight(states, tweak, tweak_ctrs, k, n) \
-    tmp = vxor(n, tweak); \
+#define deoxys_enc_eight(states, tweaks, tweak_ctrs, k, n) do {\
+    tmp = vxor(n, tweaks[0]); \
     xor_eight(states, tmp, tweak_ctrs); \
-    tweak = permute_tweak(tweak); \
-    deoxys_enc_round_eight(states, tweak, tweak_ctrs+(1*8), k[1]); \
-    deoxys_enc_round_eight(states, tweak, tweak_ctrs+(2*8), k[2]); \
-    deoxys_enc_round_eight(states, tweak, tweak_ctrs+(3*8), k[3]); \
-    deoxys_enc_round_eight(states, tweak, tweak_ctrs+(4*8), k[4]); \
-    deoxys_enc_round_eight(states, tweak, tweak_ctrs+(5*8), k[5]); \
-    deoxys_enc_round_eight(states, tweak, tweak_ctrs+(6*8), k[6]); \
-    deoxys_enc_round_eight(states, tweak, tweak_ctrs+(7*8), k[7]); \
-    deoxys_enc_round_eight(states, tweak, tweak_ctrs+(8*8), k[8]); \
-    deoxys_enc_round_eight(states, tweak, tweak_ctrs+(9*8), k[9]); \
-    deoxys_enc_round_eight(states, tweak, tweak_ctrs+(10*8), k[10]); \
-    deoxys_enc_round_eight(states, tweak, tweak_ctrs+(11*8), k[11]); \
-    deoxys_enc_round_eight(states, tweak, tweak_ctrs+(12*8), k[12]); \
-    deoxys_enc_round_eight(states, tweak, tweak_ctrs+(13*8), k[13]); \
-    deoxys_enc_round_eight(states, tweak, tweak_ctrs+(14*8), k[14])
+    deoxys_enc_round_eight(states, tweaks[1], tweak_ctrs+(1*8), k[1]); \
+    deoxys_enc_round_eight(states, tweaks[2], tweak_ctrs+(2*8), k[2]); \
+    deoxys_enc_round_eight(states, tweaks[3], tweak_ctrs+(3*8), k[3]); \
+    deoxys_enc_round_eight(states, tweaks[4], tweak_ctrs+(4*8), k[4]); \
+    deoxys_enc_round_eight(states, tweaks[5], tweak_ctrs+(5*8), k[5]); \
+    deoxys_enc_round_eight(states, tweaks[6], tweak_ctrs+(6*8), k[6]); \
+    deoxys_enc_round_eight(states, tweaks[7], tweak_ctrs+(7*8), k[7]); \
+    deoxys_enc_round_eight(states, tweaks[8], tweak_ctrs+(8*8), k[8]); \
+    deoxys_enc_round_eight(states, tweaks[9], tweak_ctrs+(9*8), k[9]); \
+    deoxys_enc_round_eight(states, tweaks[10], tweak_ctrs+(10*8), k[10]); \
+    deoxys_enc_round_eight(states, tweaks[11], tweak_ctrs+(11*8), k[11]); \
+    deoxys_enc_round_eight(states, tweaks[12], tweak_ctrs+(12*8), k[12]); \
+    deoxys_enc_round_eight(states, tweaks[13], tweak_ctrs+(13*8), k[13]); \
+    deoxys_enc_round_eight(states, tweaks[14], tweak_ctrs+(14*8), k[14]); \
+} while (0)
 
 // ---------------------------------------------------------------------
 
@@ -363,8 +398,6 @@ static inline void load_xor_and_store_eight(__m128i* out,
     state = vaesenc(state, vxor3(tweak, tweak_ctr, k)); \
     tweak = permute_tweak(tweak)
 
-    // print_foo(state, tweak, k, round); 
-
 // ---------------------------------------------------------------------
 
 #define deoxys_enc(state, tweak, tweak_ctrs, k) \
@@ -385,10 +418,6 @@ static inline void load_xor_and_store_eight(__m128i* out,
     deoxys_enc_round(state, tweak, *(tweak_ctrs+13*8), k[13], 13); \
     deoxys_enc_round(state, tweak, *(tweak_ctrs+14*8), k[14], 14)
 
-    // print_128("Round 0 state", state); \
-    // print_128("Round 0 tweak", tweak); \
-    // print_128("Round 0 key", k[0]); \
-    //
 // ---------------------------------------------------------------------
 
 #define deoxys_encrypt_round_single(state, tweak, k) \
@@ -557,14 +586,25 @@ static inline void sct_mode(riv_context_t* ctx,
         loadu((iv+BLOCKLEN)), DOMAIN_ENC
     );
     __m128i tweak_ctr_base = zero;
-    __m128i tweak; // The permuted tweak for the individual rounds.
+    __m128i tweaks[15]; // The permuted tweak for the individual rounds.
     __m128i states[8];
     __m128i tmp;
     uint64_t j = 0;
     
     while (len >= 8*BLOCKLEN) {
-        tweak = vxor(initial_tweak, tweak_ctr_base);
-        deoxys_enc_eight(states, tweak, tweak_ctrs, k, n);
+        // tweak = vxor(initial_tweak, tweak_ctr_base);
+        // deoxys_enc_eight(states, tweak, tweak_ctrs, k, n);
+        tweaks[0] = vxor(initial_tweak, tweak_ctr_base);
+
+        for (size_t i = 1; i < 8; ++i) {
+            tweaks[i] = permute_tweak(tweaks[i-1]);
+        }
+
+        for (size_t i = 8; i <= 14; ++i) {
+            tweaks[i] = tweaks[i-8];
+        }
+
+        deoxys_enc_eight(states, tweaks, tweak_ctrs, k, n);
         load_xor_and_store_eight(out, in, states);
 
         len -= 8*BLOCKLEN;
@@ -581,13 +621,13 @@ static inline void sct_mode(riv_context_t* ctx,
         }
     }
 
-    tweak = vxor(initial_tweak, tweak_ctr_base);
+    tweaks[0] = vxor(initial_tweak, tweak_ctr_base);
     
     const size_t ceil_num_blocks = ceil(len, BLOCKLEN);
     const size_t num_blocks = len / BLOCKLEN;
     const size_t last_block = len % BLOCKLEN;
 
-    deoxys_enc_n(states, tweak, tweak_ctrs, k, ceil_num_blocks, n);
+    deoxys_enc_n(states, tweaks[0], tweak_ctrs, k, ceil_num_blocks, n);
     load_xor_store_n(out, in, states, num_blocks);
 
     if (last_block != 0) {    

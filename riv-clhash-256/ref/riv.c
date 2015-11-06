@@ -1,6 +1,7 @@
 /**
-// RIV[CLHASH-256, Counter[Deoxys-128-128]] reference code.
-// Note: This uses CLHASH with four Toeplitz iterations.
+// RIV[CLHASH-256, XOR-CTR[AES-128]] reference code.
+// Note: This uses CLHASH with four iterations of the 
+//       Toeplitz matrix extension.
 // Note: This version might be susceptible to side-channel attacks.
 // 
 // Author: Eik List. October 2015.

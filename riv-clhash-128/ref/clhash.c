@@ -45,13 +45,14 @@ static void print_hex(const char* message, const uint8_t x[BLOCKLEN])
 // Utils
 // ---------------------------------------------------------------------
 
-static inline uint64_t ceil(const uint64_t x, const uint64_t y)
+static inline uint64_t ceil_to_full_blocks(const uint64_t x, 
+                                           const uint64_t block_size)
 {
-    if (x % y == 0) {
+    if (x % block_size == 0) {
         return x;
     }
 
-    return x + (y - (x % y));
+    return x + (block_size - (x % block_size));
 }
 
 // ---------------------------------------------------------------------
@@ -650,8 +651,8 @@ void clhash(const clhash_ctx_t* ctx,
     uint8_t* h = (uint8_t*)header;
     uint8_t* m = (uint8_t*)message;
 
-    const uint64_t num_bytes = ceil(num_header_bytes, BLOCKLEN)
-        + ceil(num_message_bytes, BLOCKLEN) 
+    const uint64_t num_bytes = ceil_to_full_blocks(num_header_bytes, BLOCKLEN)
+        + ceil_to_full_blocks(num_message_bytes, BLOCKLEN) 
         + BLOCKLEN;
 
     // -----------------------------------------------------------------

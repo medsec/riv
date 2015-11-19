@@ -117,7 +117,7 @@ static int run_test(const unsigned char *k,
 
 // ---------------------------------------------------------------------
 
-static int flexible_size_tests(const uint8_t* kat)
+/*static int flexible_size_tests(const uint8_t* kat)
 {
     static const size_t MAX_H_LEN = 1024;
     static const size_t MAX_M_LEN = 4096;
@@ -163,7 +163,7 @@ static int flexible_size_tests(const uint8_t* kat)
     free(m);
 
     return result;
-}
+}*/
 
 // ---------------------------------------------------------------------
 

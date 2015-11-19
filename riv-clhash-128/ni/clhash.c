@@ -46,13 +46,14 @@ static inline uint64_t min(const uint64_t a, const uint64_t b)
 
 // ---------------------------------------------------------------------
 
-static inline uint64_t ceil(const uint64_t x, const uint64_t y)
+static inline uint64_t ceil_to_full_blocks(const uint64_t x, 
+                                           const uint64_t block_size)
 {
-    if (x % y == 0) {
+    if (x % block_size == 0) {
         return x;
     }
 
-    return x + (y - (x % y));
+    return x + (block_size - (x % block_size));
 }
 
 // ---------------------------------------------------------------------
@@ -409,11 +410,11 @@ static inline void clhash_short_message(const clhash_ctx_t* ctx,
     __m128i* nh_key = (__m128i*)(ctx->nh_key);
     clnh_partial_block(nh_key, h, hlen, &nh_sum1, &nh_sum2);
 
-    const uint64_t h_words = ceil(hlen, BLOCKLEN) / BLOCKLEN;
+    const uint64_t h_words = ceil_to_full_blocks(hlen, BLOCKLEN) / BLOCKLEN;
     nh_key += h_words;
     clnh_partial_block_non_zero(nh_key, m, mlen, &nh_sum1, &nh_sum2);
     
-    const uint64_t m_words = ceil(mlen, BLOCKLEN) / BLOCKLEN;
+    const uint64_t m_words = ceil_to_full_blocks(mlen, BLOCKLEN) / BLOCKLEN;
     nh_key += m_words;
 
     ALIGN(BLOCKLEN) 
@@ -484,7 +485,7 @@ static inline void clhash_long_message(const clhash_ctx_t* ctx,
     // -----------------------------------------------------------------
 
     const uint64_t h_rest = hlen - h_pos;
-    const uint64_t h_junction = ceil(h_rest, BLOCKLEN);
+    const uint64_t h_junction = ceil_to_full_blocks(h_rest, BLOCKLEN);
     clnh_partial_block(nh_key, h, h_rest, &poly_term1, &poly_term2);
     nh_key += h_junction / BLOCKLEN;
 
@@ -495,7 +496,7 @@ static inline void clhash_long_message(const clhash_ctx_t* ctx,
     m_pos = m_junction;
     m += m_junction / BLOCKLEN;
     
-    m_junction = ceil(m_junction, BLOCKLEN);
+    m_junction = ceil_to_full_blocks(m_junction, BLOCKLEN);
     nh_key += m_junction / BLOCKLEN;
 
     if (h_junction + m_junction == CL_NH_BLOCKLEN) {
@@ -556,7 +557,7 @@ static inline void clhash_long_message(const clhash_ctx_t* ctx,
         // zeroize the poly terms, which yields wrong results for processing
         // the length later.
         clnh_partial_block(nh_key, m, mlen - m_pos, &poly_term1, &poly_term2);
-        const uint64_t m_rest = ceil(mlen - m_pos, BLOCKLEN);
+        const uint64_t m_rest = ceil_to_full_blocks(mlen - m_pos, BLOCKLEN);
 
         m += m_rest / BLOCKLEN;
         nh_key += m_rest / BLOCKLEN;
@@ -606,8 +607,8 @@ void clhash(const clhash_ctx_t* ctx,
     __m128i* h = (__m128i*)header;
     __m128i* m = (__m128i*)message;
 
-    const uint64_t num_bytes = ceil(num_header_bytes, BLOCKLEN)
-        + ceil(num_message_bytes, BLOCKLEN) 
+    const uint64_t num_bytes = ceil_to_full_blocks(num_header_bytes, BLOCKLEN)
+        + ceil_to_full_blocks(num_message_bytes, BLOCKLEN) 
         + BLOCKLEN;
 
     // -----------------------------------------------------------------

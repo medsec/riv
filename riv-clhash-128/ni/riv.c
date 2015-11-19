@@ -3,8 +3,6 @@
 // Note: This uses CLHASH with two iterations of the 
 //       Toeplitz matrix extension.
 // Note: This version might be susceptible to side-channel attacks.
-// 
-// Author: Eik List. October 2015.
 */
 #ifdef DEBUG
     #include<stdio.h>

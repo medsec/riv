@@ -4,7 +4,6 @@
 //       Toeplitz matrix extension, like in HS1-SIV (not -LO, not -HI).
 // Note: This version might be susceptible to side-channel attacks.
 // 
-// Author: Eik List. June 2015.
 // This uses and modifies the AVX2-optimized HS1v2 code by Romain Dolbeau who 
 // optimized the HS1 code by Ted Krovetz.
 // 

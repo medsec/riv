@@ -32,6 +32,7 @@ static inline __m128i loadu(const void *p) { return _mm_loadu_si128((__m128i*)p)
 static inline __m128i load(const void *p)  { return _mm_load_si128((__m128i*)p);  }
 static inline void store(const void *p, __m128i x)  {_mm_store_si128((__m128i*)p, x); }
 
+#define clmul(x,y,i)  _mm_clmulepi64_si128(x, y, i)
 #define vxor(x,y)     _mm_xor_si128(x, y)
 #define vxor3(x,y,z)  _mm_xor_si128(x, _mm_xor_si128(y, z))
 
@@ -139,7 +140,7 @@ static __m128i load_partial(const void *p, size_t n)
 
 static inline uint64_t reduce(__m128i a)
 {
-    const __m128i z = _mm_clmulepi64_si128(a, R, 0x01);
+    const __m128i z = clmul(a, R, 0x01);
     const __m128i y = _mm_shuffle_epi8(TABLE, _mm_srli_si128(z, 8));
     const __m128i x = vxor(a, vxor(y, z));
     return (uint64_t)_mm_cvtsi128_si64(x);
@@ -150,7 +151,7 @@ static inline uint64_t reduce(__m128i a)
 static inline __m128i hash_asu(const uint64_t* k, const __m128i poly_sum)
 {
     const __m128i x = vxor(load(k), poly_sum);
-    return _mm_clmulepi64_si128(x, x, 0x01);
+    return clmul(x, x, 0x01);
 }
 
 // ---------------------------------------------------------------------
@@ -158,7 +159,7 @@ static inline __m128i hash_asu(const uint64_t* k, const __m128i poly_sum)
 static inline __m128i hash_size(const uint64_t k_pprime, const uint64_t len) 
 {
     const __m128i x = _mm_set_epi64((__m64)k_pprime, (__m64)len);
-    return _mm_clmulepi64_si128(x, x, 0x01);
+    return clmul(x, x, 0x01);
 }
 
 // ---------------------------------------------------------------------
@@ -181,15 +182,15 @@ static inline __m128i gf128_multiply(__m128i a, __m128i b)
 {
     __m128i tmp0, tmp1, tmp2, tmp3, tmp4, tmp5;
 
-    tmp0 = _mm_clmulepi64_si128(a, b, 0x11); // C = [C1:C0] = A1 * B1
-    tmp5 = _mm_clmulepi64_si128(a, b, 0x00); // D = [D1:D0] = A0 * B0
+    tmp0 = clmul(a, b, 0x11); // C = [C1:C0] = A1 * B1
+    tmp5 = clmul(a, b, 0x00); // D = [D1:D0] = A0 * B0
 
     /* Computing E */
     tmp1 = _mm_shuffle_epi32(a, 78); // [A0:A1]
     tmp2 = _mm_shuffle_epi32(b, 78); // [B0:B1]
     tmp1 = _mm_xor_si128(tmp1, a);   // [A1 ^ A0:A1 ^ A0]
     tmp2 = _mm_xor_si128(tmp2, b);   // [B1 ^ B0:B1 ^ B0]
-    tmp2 = _mm_clmulepi64_si128(tmp1, tmp2, 0x00); // [E:E1] = (A1 xor A0) * (B1 xor B0)
+    tmp2 = clmul(tmp1, tmp2, 0x00); // [E:E1] = (A1 xor A0) * (B1 xor B0)
     
     /* Computing X */
     tmp3 = _mm_xor_si128(tmp0, tmp5);// [          D1 ^ C1:          D0 ^ C0]
@@ -229,23 +230,23 @@ static inline __m128i gf128_multiply_four(__m128i* key, __m128i* terms)
     __m128i B3 = terms[2];
     __m128i B4 = terms[3];
 
-    __m128i Amix11 = _mm_clmulepi64_si128(A1,B1,0x01);
-    __m128i Amix21 = _mm_clmulepi64_si128(A1,B1,0x10);
-    __m128i Amix12 = _mm_clmulepi64_si128(A2,B2,0x01);
-    __m128i Amix22 = _mm_clmulepi64_si128(A2,B2,0x10);
-    __m128i Amix13 = _mm_clmulepi64_si128(A3,B3,0x01);
-    __m128i Amix23 = _mm_clmulepi64_si128(A3,B3,0x10);
-    __m128i Amix14 = _mm_clmulepi64_si128(A4,B4,0x01);
-    __m128i Amix24 = _mm_clmulepi64_si128(A4,B4,0x10);
+    __m128i Amix11 = clmul(A1,B1,0x01);
+    __m128i Amix21 = clmul(A1,B1,0x10);
+    __m128i Amix12 = clmul(A2,B2,0x01);
+    __m128i Amix22 = clmul(A2,B2,0x10);
+    __m128i Amix13 = clmul(A3,B3,0x01);
+    __m128i Amix23 = clmul(A3,B3,0x10);
+    __m128i Amix14 = clmul(A4,B4,0x01);
+    __m128i Amix24 = clmul(A4,B4,0x10);
 
-    __m128i Alow1  = _mm_clmulepi64_si128(A1,B1,0x00);
-    __m128i Ahigh1 = _mm_clmulepi64_si128(A1,B1,0x11);
-    __m128i Alow2  = _mm_clmulepi64_si128(A2,B2,0x00);
-    __m128i Ahigh2 = _mm_clmulepi64_si128(A2,B2,0x11);
-    __m128i Alow3  = _mm_clmulepi64_si128(A3,B3,0x00);
-    __m128i Ahigh3 = _mm_clmulepi64_si128(A3,B3,0x11);
-    __m128i Alow4  = _mm_clmulepi64_si128(A4,B4,0x00);
-    __m128i Ahigh4 = _mm_clmulepi64_si128(A4,B4,0x11);
+    __m128i Alow1  = clmul(A1,B1,0x00);
+    __m128i Ahigh1 = clmul(A1,B1,0x11);
+    __m128i Alow2  = clmul(A2,B2,0x00);
+    __m128i Ahigh2 = clmul(A2,B2,0x11);
+    __m128i Alow3  = clmul(A3,B3,0x00);
+    __m128i Ahigh3 = clmul(A3,B3,0x11);
+    __m128i Alow4  = clmul(A4,B4,0x00);
+    __m128i Ahigh4 = clmul(A4,B4,0x11);
 
     __m128i Amix1 = _mm_xor_si128(Amix11,Amix21);
     __m128i Amix2 = _mm_xor_si128(Amix12,Amix22);
@@ -296,22 +297,30 @@ static inline void xor_and_multiply_word(const __m128i* m,
                                          __m128i* sum) 
 {
     const __m128i m_xor_k = vxor(*m, *k);
-    const __m128i product = _mm_clmulepi64_si128(m_xor_k, m_xor_k, 0x01);
+    const __m128i product = clmul(m_xor_k, m_xor_k, 0x01);
     *sum = vxor(*sum, product);
 }
 
 // ---------------------------------------------------------------------
 
-#define clnh(k, m, num_bytes, sum1, sum2) \
-    while (num_bytes >= 32) { \
-        xor_and_multiply_word(m, k, sum1); \
-        xor_and_multiply_word(m, k+1, sum2); \
-        xor_and_multiply_word(m+1, k+1, sum1); \
-        xor_and_multiply_word(m+1, k+2, sum2); \
-        num_bytes -= 32; \
-        m += 2; \
-        k += 2; \
-    }
+#define clnh(k, m, num_bytes, sum1, sum2) do { \
+    __m128i tmp1, tmp2, tmp3, tmp4;            \
+    while (num_bytes >= 32) {                  \
+        tmp1 = vxor(*m,     *k);               \
+        tmp2 = vxor(*m,     *(k+1));           \
+        tmp3 = vxor(*(m+1), *(k+1));           \
+        tmp4 = vxor(*(m+1), *(k+2));           \
+        tmp1 = clmul(tmp1, tmp1, 0x01);        \
+        tmp2 = clmul(tmp2, tmp2, 0x01);        \
+        tmp3 = clmul(tmp3, tmp3, 0x01);        \
+        tmp4 = clmul(tmp4, tmp4, 0x01);        \
+        *sum1 = vxor3(*sum1, tmp1, tmp3);      \
+        *sum2 = vxor3(*sum2, tmp2, tmp4);      \
+        num_bytes -= 32;                       \
+        m += 2;                                \
+        k += 2;                                \
+    }                                          \
+} while (0)
 
 // ---------------------------------------------------------------------
 

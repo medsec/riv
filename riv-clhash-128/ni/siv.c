@@ -1,11 +1,8 @@
 /**
-// RIV[HS1, Counter[AES-128]] x86-64-only code.
-// Note: This uses HS1 Draft v2 with four iterations of the 
-//       Toeplitz matrix extension, like in HS1-SIV (not -LO, not -HI).
+// SIV[CLHASH, Counter[AES-128]] x86-64-only code.
+// Note: CLHASH was adapted from the optimized implementation by Daniel Lemire, 
+//       and Owen Kaser.
 // Note: This version might be susceptible to side-channel attacks.
-// 
-// This uses and modifies the AVX2-optimized HS1v2 code by Romain Dolbeau who 
-// optimized the HS1 code by Ted Krovetz.
 // 
 // This is free and unencumbered software released into the public domain.
 //

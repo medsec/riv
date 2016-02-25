@@ -1,10 +1,14 @@
 /**
-// RIV[CLHASH-256, XOR-CTR[AES-128]] reference code.
+// RIV[CLHASH-256, XOR-CTR[Deoxys-128-128]] reference code.
 // Note: This uses CLHASH with four iterations of the 
 //       Toeplitz matrix extension.
 // Note: This version might be susceptible to side-channel attacks.
 // 
-// Author: Eik List. October 2015.
+// Deoxys-128-128 code was adapted from v1.1 of the optimized implementation by
+// Jeremy Jean, Ivica Nikolic, and Thomas Peyrin. 
+// 
+// CLHASH was adapted from the optimized implementation by Daniel Lemire, and 
+// Owen Kaser.
 */
 #ifdef DEBUG
   #include<stdio.h>

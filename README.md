@@ -20,12 +20,12 @@ Each version contains:
 - A utils directory with tests and benchmarks.
 - A Makefile for compilation.
 
-    make 
-    ./all
-    ./ref-test
-    ./ni-test
-    ./ni-bench
-    ./clean
+	make 
+	./all
+	./ref-test
+	./ni-test
+	./ni-bench
+	./clean
 
 ## References
 ### CLHASH

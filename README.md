@@ -30,11 +30,14 @@ Each version contains:
 ## References
 ### CLHASH
 RIV uses a Toeplitz-extended version of the fast universal hashing family
-CLHASH:
+CLHASH.
+
 Daniel Lemire and Owen Kaser, Faster 64-bit universal hashing using
-carry-less multiplications, Journal of Cryptographic Engineering (to appear)
-http://arxiv.org/abs/1503.03465 Repo:
-https://github.com/lemire/StronglyUniversalStringHashing
+carry-less multiplications, Journal of Cryptographic Engineering, 2015.
+- http://arxiv.org/abs/1503.03465 
+
+Code:
+- https://github.com/lemire/StronglyUniversalStringHashing
 
 ### CTRT
 RIV-256 uses a version of the Counter-in-Tweak (CTRT) mode with the (AES-round-
@@ -47,16 +50,17 @@ addition to increment the tweak:
 We reimplemented the Deoxys-BC-128-128 block cipher according to the optimized
 first-round CAESAR implementation of Deoxys that was contained in the SUPERCOP
 framework:
-http://hyperelliptic.org/ebats/supercop-20141124.tar.bz2
+- http://hyperelliptic.org/ebats/supercop-20141124.tar.bz2
 
 Thomas Peyrin and Yannick Seurin: Counter-in-Tweak: Authenticated Encryption
-Modes for Tweakable Block Ciphers. https://eprint.iacr.org/2015/1049
+Modes for Tweakable Block Ciphers, 2015. 
+- https://eprint.iacr.org/2015/1049
 
 ### Deoxys-BC
 Jérémy Jean and Ivica Nikolić and Thomas Peyrin:  Tweaks and Keys for Block
-Ciphers: the TWEAKEY Framework 
-http://eprint.iacr.org/2014/831
-http://www1.spms.ntu.edu.sg/~syllab/m/index.php/Deoxys
+Ciphers: the TWEAKEY Framework, ASIACRYPT 2014.
+- http://eprint.iacr.org/2014/831
+- http://www1.spms.ntu.edu.sg/~syllab/m/index.php/Deoxys
 
 ## Disclaimer/License
 Use on your own risk. Our code may be susceptible to side-channel attacks. If
